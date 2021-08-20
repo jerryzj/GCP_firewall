@@ -30,6 +30,8 @@ int main(int argc, char **argv) {
   argparse::ArgumentParser program("GCP Firewall Command Generator");
   program.add_argument("--projectid", "-id").required().help("GCP project id");
   program.add_argument("--input", "-i").required().help("IP list file in CIDR format");
+  program.add_argument("--priority", "-p").default_value(0).help("Rule priority");
+  program.add_argument("--rulename", "-n").default_value(std::string("block-china")).help("Name of the rules");
   program.add_argument("--output", "-o").default_value(std::string("block_china.sh")).required().help("Specify the output file.");
 
   try {
@@ -48,7 +50,7 @@ int main(int argc, char **argv) {
   std::string project("--project=");
   std::string project_id(program.get<std::string>("-id") + " ");
   std::string firewall_command("firewall-rules create ");
-  std::string firewall_rule_name("block-china-");
+  std::string firewall_rule_name(program.get<std::string>("-n") + "-");
   std::string firewall_rule_direction("--direction=INGRESS ");
   std::string firewall_rule_priority("--priority=");
   std::string firewall_rule_network("--network=default ");
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
   // Counters
   int command_counter(0);   // How many commands generated
   int ip_dumped_counter(0); // How many IP ranges is dumped
-  int priority_counter(0);  // Firewall priority setting
+  int priority_counter(program.get<int>("-p"));  // Firewall priority setting
 
   // Read IP block list
   buffer.clear();
